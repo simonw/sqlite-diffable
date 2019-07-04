@@ -6,4 +6,8 @@
 
 Tools for dumping/loading a SQLite database to diffable directory structure
 
-Work in progress.
+Usage:
+
+    $ sqlite-diffable dump fixtures.db out/ facetable
+
+This dumps the table called "facetable" from fixtures.db into the out/ directory.

@@ -26,7 +26,7 @@ setup(
     extras_require={"test": ["pytest", "black"]},
     entry_points="""
         [console_scripts]
-        sqlite-diffadble=sqlite_diffable.cli:cli
+        sqlite-diffable=sqlite_diffable.cli:cli
     """,
     tests_require=["sqlite-diffable[test]"],
     url="https://github.com/simonw/sqlite-diffable",
