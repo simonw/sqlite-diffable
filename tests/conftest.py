@@ -15,3 +15,10 @@ def one_table_db(tmpdir):
         pk="id",
     )
     return path
+
+
+@pytest.fixture
+def two_tables_db(one_table_db):
+    db = sqlite_utils.Database(one_table_db)
+    db["second_table"].insert_all([{"id": 1, "name": "Cleo"}], pk="id")
+    return one_table_db

@@ -18,18 +18,24 @@ def cli():
 @click.argument(
     "output", type=click.Path(file_okay=False, dir_okay=True), required=True
 )
-@click.argument("tables", nargs=-1, required=True)
-def dump(path, output, tables):
+@click.argument("tables", nargs=-1, required=False)
+@click.option("--all", is_flag=True)
+def dump(path, output, tables, all):
+    if not tables and not all:
+        raise click.ClickException("You must pass --all or specify some tables")
     output = pathlib.Path(output)
     output.mkdir(exist_ok=True)
     conn = sqlite_utils.Database(path)
+    if all:
+        tables = conn.table_names()
     for table in tables:
-        filepath = output / "{}.ndjson".format(table)
-        metapath = output / "{}.metadata.json".format(table)
+        tablename = table.replace("/", "")
+        filepath = output / "{}.ndjson".format(tablename)
+        metapath = output / "{}.metadata.json".format(tablename)
         # Dump rows to filepath
         with filepath.open("w") as fp:
             for row in conn[table].rows:
-                fp.write(json.dumps(list(row.values())) + "\n")
+                fp.write(json.dumps(list(row.values()), default=repr) + "\n")
             fp.close()
         # Dump out metadata
         metapath.open("w").write(

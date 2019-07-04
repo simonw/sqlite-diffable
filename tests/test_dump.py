@@ -22,3 +22,15 @@ def test_dump(one_table_db, tmpdir):
         "columns": ["id", "name"],
         "schema": "CREATE TABLE [one_table] (\n   [id] INTEGER PRIMARY KEY,\n   [name] TEXT\n)",
     } == json.load(metadata)
+
+
+def test_dump_all(two_tables_db, tmpdir):
+    output_dir = tmpdir / "out"
+    result = CliRunner().invoke(
+        cli.cli, ["dump", two_tables_db, str(output_dir), "--all"]
+    )
+    assert 0 == result.exit_code, result.output
+    assert (output_dir / "one_table.ndjson").exists()
+    assert (output_dir / "one_table.metadata.json").exists()
+    assert (output_dir / "second_table.ndjson").exists()
+    assert (output_dir / "second_table.metadata.json").exists()
