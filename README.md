@@ -10,7 +10,7 @@ Usage:
 
     $ sqlite-diffable dump fixtures.db out/ facetable
 
-This dumps the table called "facetable" from fixtures.db into the out/ directory.
+This dumps the table called `facetable` from `fixtures.db` into the `out/` directory.
 
 To dump out all tables, use `--all`:
 
