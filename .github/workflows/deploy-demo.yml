@@ -1,0 +1,54 @@
+name: Deploy demo
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - uses: actions/cache@v2
+      name: Configure pip caching
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Download database
+      run: |
+        curl -O https://github-to-sqlite.dogsheep.net/github.db
+    - name: Install Python dependencies
+      run: |
+        pip install -e .[test]
+    - name: Generate fixtures.db
+      run: |
+        python tests/fixtures.py fixtures.db
+    - name: Create Metadata
+      run: |
+        echo '{
+            "title": "datasette-graphql demo",
+            "about": "simonw/datasette-graphql",
+            "about_url": "https://github.com/simonw/datasette-graphql",
+            "description_html": "Try it out at <a href=\"/graphql\">/graphql</a>"
+        }' > metadata.json
+    - name: Set up Cloud Run
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '275.0.0'
+        service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+    - name: Deploy to Cloud Run
+      run: |-
+        gcloud config set run/region us-central1
+        gcloud config set project datasette-222320
+        datasette publish cloudrun github.db fixtures.db \
+          -m metadata.json \
+          --install=https://github.com/simonw/datasette-graphql/archive/$GITHUB_SHA.zip \
+          --service datasette-graphql-demo
