@@ -10,7 +10,7 @@ Tools for dumping/loading a SQLite database to diffable directory structure
 
     pip install sqlite-diffable
 
-## Usage
+## Dumping a database
 
 Given a SQLite database called `fixtures.db` containing a table `facetable`, the following will dump out that table to the `out/` directory:
 
@@ -19,6 +19,12 @@ Given a SQLite database called `fixtures.db` containing a table `facetable`, the
 To dump out every table in that database, use `--all`:
 
     sqlite-diffable dump fixtures.db out/ --all
+
+## Loading a database
+
+To load a previously dumped database, run the following:
+
+    sqlite-diffable load restored.db out/
 
 ## Demo
 

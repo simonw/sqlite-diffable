@@ -13,19 +13,32 @@ def cli():
 
 @cli.command()
 @click.argument(
-    "path", type=click.Path(exists=True, file_okay=True, dir_okay=False), required=True
+    "dbpath",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    required=True,
 )
 @click.argument(
     "output", type=click.Path(file_okay=False, dir_okay=True), required=True
 )
 @click.argument("tables", nargs=-1, required=False)
-@click.option("--all", is_flag=True)
-def dump(path, output, tables, all):
+@click.option("--all", is_flag=True, help="Dump all tables")
+def dump(dbpath, output, tables, all):
+    """
+    Dump a SQLite database out as flat files in the directory
+
+    Usage:
+
+        sqlite-diffable dump my.db output/ --all
+
+    --all dumps ever table. Or specify tables like this:
+
+        sqlite-diffable dump my.db output/ entries tags
+    """
     if not tables and not all:
         raise click.ClickException("You must pass --all or specify some tables")
     output = pathlib.Path(output)
     output.mkdir(exist_ok=True)
-    conn = sqlite_utils.Database(path)
+    conn = sqlite_utils.Database(dbpath)
     if all:
         tables = conn.table_names()
     for table in tables:
@@ -48,3 +61,38 @@ def dump(path, output, tables, all):
                 indent=4,
             )
         )
+
+
+@cli.command()
+@click.argument(
+    "dbpath",
+    type=click.Path(file_okay=True, allow_dash=False, dir_okay=False),
+)
+@click.argument(
+    "directory",
+    type=click.Path(file_okay=False, dir_okay=True),
+)
+def load(dbpath, directory):
+    """
+    Load flat files from a directory into a SQLite database
+
+    Usage:
+
+        sqlite-diffable load my.db output/
+    """
+    db = sqlite_utils.Database(dbpath)
+    directory = pathlib.Path(directory)
+    metadatas = directory.glob("*.metadata.json")
+    for metadata in metadatas:
+        info = json.loads(metadata.read_text())
+        columns = info["columns"]
+        schema = info["schema"]
+        db.execute(schema)
+        # Now insert the rows
+        ndjson = metadata.parent / metadata.stem.replace(".metadata", ".ndjson")
+        rows = (
+            dict(zip(columns, json.loads(line)))
+            for line in ndjson.open()
+            if line.strip()
+        )
+        db[info["name"]].insert_all(rows)
