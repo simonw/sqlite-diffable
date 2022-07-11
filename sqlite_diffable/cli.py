@@ -2,6 +2,7 @@ import click
 import json
 import pathlib
 import sqlite_utils
+import sqlite3
 
 
 @click.group()
@@ -72,13 +73,14 @@ def dump(dbpath, output, tables, all):
     "directory",
     type=click.Path(file_okay=False, dir_okay=True),
 )
-def load(dbpath, directory):
+@click.option("--replace", is_flag=True, help="Replace tables if they exist already")
+def load(dbpath, directory, replace):
     """
     Load flat files from a directory into a SQLite database
 
     Usage:
 
-        sqlite-diffable load my.db output/
+        sqlite-diffable load my.db dump-location/
     """
     db = sqlite_utils.Database(dbpath)
     directory = pathlib.Path(directory)
@@ -87,7 +89,15 @@ def load(dbpath, directory):
         info = json.loads(metadata.read_text())
         columns = info["columns"]
         schema = info["schema"]
-        db.execute(schema)
+        if db[info["name"]].exists() and replace:
+            db[info["name"]].drop()
+        try:
+            db.execute(schema)
+        except sqlite3.OperationalError as ex:
+            msg = str(ex)
+            if "already exists" in msg:
+                msg += "\n\nUse the --replace option to over-write existing tables"
+            raise click.ClickException(msg)
         # Now insert the rows
         ndjson = metadata.parent / metadata.stem.replace(".metadata", ".ndjson")
         rows = (

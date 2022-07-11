@@ -12,19 +12,25 @@ Tools for dumping/loading a SQLite database to diffable directory structure
 
 ## Dumping a database
 
-Given a SQLite database called `fixtures.db` containing a table `facetable`, the following will dump out that table to the `out/` directory:
+Given a SQLite database called `fixtures.db` containing a table `facetable`, the following will dump out that table to the `dump/` directory:
 
-    sqlite-diffable dump fixtures.db out/ facetable
+    sqlite-diffable dump fixtures.db dump/ facetable
 
 To dump out every table in that database, use `--all`:
 
-    sqlite-diffable dump fixtures.db out/ --all
+    sqlite-diffable dump fixtures.db dump/ --all
 
 ## Loading a database
 
 To load a previously dumped database, run the following:
 
-    sqlite-diffable load restored.db out/
+    sqlite-diffable load restored.db dump/
+
+This will show an error if any of the tables that are being restored already exist in the database file.
+
+You can replace those tables (dropping them before restoring them) using the `--replace` option:
+
+    sqlite-diffable load restored.db dump/ --replace
 
 ## Demo
 
