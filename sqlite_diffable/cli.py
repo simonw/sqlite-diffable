@@ -3,6 +3,7 @@ import json
 import pathlib
 import sqlite_utils
 import sqlite3
+import sys
 
 
 @click.group()
@@ -106,3 +107,56 @@ def load(dbpath, directory, replace):
             if line.strip()
         )
         db[info["name"]].insert_all(rows)
+
+
+@cli.command()
+@click.argument(
+    "filepath",
+    type=click.Path(file_okay=True, allow_dash=False, dir_okay=False, exists=True),
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(file_okay=True, allow_dash=True, dir_okay=False),
+)
+@click.option(
+    "--array",
+    is_flag=True,
+    help="Output JSON array instead of newline-delimited objects",
+)
+def objects(filepath, output, array):
+    """
+    Output rows from a .ndjson file as newline-delimited JSON objects
+
+    Usage:
+
+        sqlite-diffable objects dump-location/mytable.ndjson
+
+    This will read the column names from the accompanying .metadata.json file.
+    """
+    if not filepath.endswith(".ndjson"):
+        raise click.ClickException("Must be a .ndjson file")
+    path = pathlib.Path(filepath)
+    metadata = path.parent / (path.stem + ".metadata.json")
+    if not metadata.exists():
+        raise click.ClickException("No accompanying .metadata.json file")
+    # Read the column names
+    info = json.loads(metadata.read_text())
+    columns = info["columns"]
+    # Output the rows
+    out = sys.stdout if output is None else open(output, "w")
+    if array:
+        out.write("[")
+    first = True
+    for line in path.open():
+        row = json.loads(line)
+        if array and not first:
+            out.write(",\n")
+        else:
+            out.write("\n")
+        out.write(json.dumps(dict(zip(columns, row))))
+        first = False
+    if array:
+        out.write("\n]\n")
+    else:
+        out.write("\n")

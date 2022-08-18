@@ -10,6 +10,10 @@ Tools for dumping/loading a SQLite database to diffable directory structure
 
     pip install sqlite-diffable
 
+## Demo
+
+The repository at [simonw/simonwillisonblog-backup](https://github.com/simonw/simonwillisonblog-backup) contains a backup of the database on my blog, https://simonwillison.net/ - created using this tool.
+
 ## Dumping a database
 
 Given a SQLite database called `fixtures.db` containing a table `facetable`, the following will dump out that table to the `dump/` directory:
@@ -32,11 +36,43 @@ You can replace those tables (dropping them before restoring them) using the `--
 
     sqlite-diffable load restored.db dump/ --replace
 
-## Demo
+## Converting to JSON objects
 
-The repository at [simonw/simonwillisonblog-backup](https://github.com/simonw/simonwillisonblog-backup) contains a backup of the database on my blog, https://simonwillison.net/ - created using this tool.
+Table rows are stored in the `.ndjson` files as newline-delimited JSON arrays, like this:
 
-## Format
+```
+["a", "a", "a-a", 63, null, 0.7364712141640124, "$null"]
+["a", "b", "a-b", 51, null, 0.6020187290499803, "$null"]
+```
+
+Sometimes it can be more convenient to work with a list of JSON objects.
+
+The `sqlite-diffable objects` command can read a `.ndjson` file and its accompanying `.metadata.json` file and output JSON objects to standard output:
+
+    sqlite-diffable objects fixtures.db dump/sortable.ndjson
+
+The output of that command looks something like this:
+```
+{"pk1": "a", "pk2": "a", "content": "a-a", "sortable": 63, "sortable_with_nulls": null, "sortable_with_nulls_2": 0.7364712141640124, "text": "$null"}
+{"pk1": "a", "pk2": "b", "content": "a-b", "sortable": 51, "sortable_with_nulls": null, "sortable_with_nulls_2": 0.6020187290499803, "text": "$null"}
+```
+
+Add `-o` to write that output to a file:
+
+    sqlite-diffable objects fixtures.db dump/sortable.ndjson -o output.txt
+
+Add `--array` to output a JSON array of objects, as opposed to a newline-delimited file:
+
+    sqlite-diffable objects fixtures.db dump/sortable.ndjson --array
+Output:
+```
+[
+{"pk1": "a", "pk2": "a", "content": "a-a", "sortable": 63, "sortable_with_nulls": null, "sortable_with_nulls_2": 0.7364712141640124, "text": "$null"},
+{"pk1": "a", "pk2": "b", "content": "a-b", "sortable": 51, "sortable_with_nulls": null, "sortable_with_nulls_2": 0.6020187290499803, "text": "$null"}
+]
+```
+
+## Storage format
 
 Each table is represented as two files. The first, `table_name.metadata.json`, contains metadata describing the structure of the table. For a table called `redirects_redirect` that file might look like this:
 
