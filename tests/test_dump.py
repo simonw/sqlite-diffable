@@ -60,10 +60,9 @@ def test_load(two_tables_db, tmpdir):
     # Running load a second time should error
     result3 = CliRunner().invoke(cli.cli, ["load", str(restore_db), str(output_dir)])
     assert result3.exit_code == 1
-    assert result3.output == (
-        "Error: table [second_table] already exists\n\n"
-        "Use the --replace option to over-write existing tables\n"
-    )
+    assert (
+        "already exists\n\nUse the --replace option to over-write existing tables\n"
+    ) in result3.output
     # Using --replace should work correctly
     (output_dir / "one_table.ndjson").write_text(
         '[1, "Stacey"]\n[2, "Tilda"]\n', "utf-8"
