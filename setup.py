@@ -2,7 +2,7 @@ import io
 import os
 from setuptools import setup, find_packages
 
-VERSION = "0.4"
+VERSION = "0.5"
 
 
 def get_long_description():
@@ -30,6 +30,11 @@ setup(
     """,
     tests_require=["sqlite-diffable[test]"],
     url="https://github.com/simonw/sqlite-diffable",
+    project_urls={
+        "Issues": "https://github.com/simonw/sqlite-diffable/issues",
+        "CI": "https://github.com/simonw/sqlite-diffable/actions",
+        "Changelog": "https://github.com/simonw/sqlite-diffable/releases",
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
