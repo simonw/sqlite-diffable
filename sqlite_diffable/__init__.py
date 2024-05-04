@@ -22,3 +22,11 @@ def dump(dbpath, output, tables=[], all=False):
     except click.exceptions.ClickException as e:
        print("You must set all to True or specify a list of tables")
        # raise(e)
+
+def objects(filepath, output='', array=False):
+    params = [filepath]
+    if output:
+       params += ['--output', output]
+    if array:
+       params.append('--array')
+    sqlite_diffable.cli.objects(params, standalone_mode=False)
