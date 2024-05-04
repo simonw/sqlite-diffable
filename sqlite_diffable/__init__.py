@@ -9,7 +9,8 @@ def load(dbpath, directory, replace=False):
         sqlite_diffable.cli.load(params, standalone_mode=False)
     except click.exceptions.ClickException as e:
        print("Use the replace parameter to over-write existing tables")
-       # raise(e)
+       return False
+    return True
 
 def dump(dbpath, output, tables=[], all=False):
     params = [dbpath, output]
@@ -20,8 +21,9 @@ def dump(dbpath, output, tables=[], all=False):
     try:
         sqlite_diffable.cli.dump(params, standalone_mode=False)
     except click.exceptions.ClickException as e:
-       print("You must set all to True or specify a list of tables")
-       # raise(e)
+        print("You must set all to True or specify a list of tables")
+        return False
+    return True
 
 def objects(filepath, output='', array=False):
     params = [filepath]
