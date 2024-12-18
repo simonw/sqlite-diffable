@@ -37,6 +37,18 @@ def test_dump_all(two_tables_db, tmpdir):
     assert (output_dir / "second_table.metadata.json").exists()
 
 
+def test_dump_exclude(two_tables_db, tmpdir):
+    output_dir = tmpdir / "out"
+    result = CliRunner().invoke(
+        cli.cli, ["dump", two_tables_db, str(output_dir), "--all", "--exclude", "second_table"]
+    )
+    assert result.exit_code == 0, result.output
+    assert (output_dir / "one_table.ndjson").exists()
+    assert (output_dir / "one_table.metadata.json").exists()
+    assert not (output_dir / "second_table.ndjson").exists()
+    assert not (output_dir / "second_table.metadata.json").exists()
+
+
 def test_load(two_tables_db, tmpdir):
     output_dir = tmpdir / "out"
     restore_db = tmpdir / "restore.db"

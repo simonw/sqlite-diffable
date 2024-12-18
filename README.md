@@ -24,6 +24,10 @@ To dump out every table in that database, use `--all`:
 
     sqlite-diffable dump fixtures.db dump/ --all
 
+To dump all table except some specific ones, use `--exclude` one or more times:
+
+    sqlite-diffable dump fixtures.db dump/ --all --exclude unwanted_first_table --exclude unwanted_second_table
+
 ## Loading a database
 
 To load a previously dumped database, run the following:
