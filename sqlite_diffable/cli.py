@@ -24,7 +24,8 @@ def cli():
 )
 @click.argument("tables", nargs=-1, required=False)
 @click.option("--all", is_flag=True, help="Dump all tables")
-def dump(dbpath, output, tables, all):
+@click.option("--exclude", multiple=True, help="Tables to exclude from the dump")
+def dump(dbpath, output, tables, all, exclude):
     """
     Dump a SQLite database out as flat files in the directory
 
@@ -32,9 +33,13 @@ def dump(dbpath, output, tables, all):
 
         sqlite-diffable dump my.db output/ --all
 
-    --all dumps ever table. Or specify tables like this:
+    --all dumps every table. Or specify tables like this:
 
         sqlite-diffable dump my.db output/ entries tags
+
+    Exclude specific tables:
+
+        sqlite-diffable dump my.db output/ --all --exclude table1 --exclude table2
     """
     if not tables and not all:
         raise click.ClickException("You must pass --all or specify some tables")
@@ -42,7 +47,9 @@ def dump(dbpath, output, tables, all):
     output.mkdir(exist_ok=True)
     conn = sqlite_utils.Database(dbpath)
     if all:
-        tables = conn.table_names()
+        tables = set(conn.table_names()) - set(exclude)
+    else:
+        tables = set(tables) - set(exclude)
     for table in tables:
         tablename = table.replace("/", "")
         filepath = output / "{}.ndjson".format(tablename)
