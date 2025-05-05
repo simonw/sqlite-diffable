@@ -1,0 +1,28 @@
+[project]
+name = "sqlite-diffable"
+version = "0.5"
+description = "Tools for dumping/loading a SQLite database to diffable directory structure"
+readme = "README.md"
+authors = [{name = "Simon Willison"}]
+license = "Apache-2.0"
+requires-python = ">=3.9"
+dependencies = [
+    "click",
+    "sqlite-utils"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/simonw/sqlite-diffable"
+Changelog = "https://github.com/simonw/sqlite-diffable/releases"
+Issues = "https://github.com/simonw/sqlite-diffable/issues"
+CI = "https://github.com/simonw/sqlite-diffable/actions"
+
+[project.scripts]
+sqlite-diffable = "sqlite_diffable.cli:cli"
+
+[project.optional-dependencies]
+test = ["pytest", "black"]
