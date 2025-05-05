@@ -17,29 +17,31 @@ The repository at [simonw/simonwillisonblog-backup](https://github.com/simonw/si
 ## Dumping a database
 
 Given a SQLite database called `fixtures.db` containing a table `facetable`, the following will dump out that table to the `dump/` directory:
-
-    sqlite-diffable dump fixtures.db dump/ facetable
-
+```bash
+sqlite-diffable dump fixtures.db dump/ facetable
+```
 To dump out every table in that database, use `--all`:
-
-    sqlite-diffable dump fixtures.db dump/ --all
-
+```bash
+sqlite-diffable dump fixtures.db dump/ --all
+```
 To dump all table except some specific ones, use `--exclude` one or more times:
-
-    sqlite-diffable dump fixtures.db dump/ --all --exclude unwanted_first_table --exclude unwanted_second_table
-
+```bash
+sqlite-diffable dump fixtures.db dump/ --all \
+  --exclude unwanted_first_table \
+  --exclude unwanted_second_table
+```
 ## Loading a database
 
 To load a previously dumped database, run the following:
-
-    sqlite-diffable load restored.db dump/
-
+```bash
+sqlite-diffable load restored.db dump/
+```
 This will show an error if any of the tables that are being restored already exist in the database file.
 
 You can replace those tables (dropping them before restoring them) using the `--replace` option:
-
-    sqlite-diffable load restored.db dump/ --replace
-
+```bash
+sqlite-diffable load restored.db dump/ --replace
+```
 ## Converting to JSON objects
 
 Table rows are stored in the `.ndjson` files as newline-delimited JSON arrays, like this:
@@ -52,9 +54,9 @@ Table rows are stored in the `.ndjson` files as newline-delimited JSON arrays, l
 Sometimes it can be more convenient to work with a list of JSON objects.
 
 The `sqlite-diffable objects` command can read a `.ndjson` file and its accompanying `.metadata.json` file and output JSON objects to standard output:
-
-    sqlite-diffable objects fixtures.db dump/sortable.ndjson
-
+```bash
+sqlite-diffable objects fixtures.db dump/sortable.ndjson
+```
 The output of that command looks something like this:
 ```
 {"pk1": "a", "pk2": "a", "content": "a-a", "sortable": 63, "sortable_with_nulls": null, "sortable_with_nulls_2": 0.7364712141640124, "text": "$null"}
@@ -62,12 +64,13 @@ The output of that command looks something like this:
 ```
 
 Add `-o` to write that output to a file:
-
-    sqlite-diffable objects fixtures.db dump/sortable.ndjson -o output.txt
-
+```bash
+sqlite-diffable objects fixtures.db dump/sortable.ndjson -o output.txt
+```
 Add `--array` to output a JSON array of objects, as opposed to a newline-delimited file:
-
-    sqlite-diffable objects fixtures.db dump/sortable.ndjson --array
+```bash
+sqlite-diffable objects fixtures.db dump/sortable.ndjson --array
+```
 Output:
 ```
 [
