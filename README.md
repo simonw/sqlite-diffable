@@ -92,7 +92,7 @@ Each table is represented as two files. The first, `table_name.metadata.json`, c
 
 It is an object with three keys: `name` is the name of the table, `columns` is an array of column strings and `schema` is the SQL schema text used for tha table.
 
-The second file, `table_name.ndjson`, contains [newline-delimited JSON](http://ndjson.org/) for every row in the table. Each row is represented as a JSON array with items corresponding to each of the columns defined in the metadata.
+The second file, `table_name.ndjson`, contains newline-delimited JSON (aka [JSON Lines](https://jsonlines.org/)) for every row in the table. Each row is represented as a JSON array with items corresponding to each of the columns defined in the metadata.
 
 That file for the `redirects_redirect.ndjson` table might look like this:
 
